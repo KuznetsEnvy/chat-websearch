@@ -10,12 +10,16 @@ interface SuggestedActionsProps {
   chatId: string;
   append: UseChatHelpers['append'];
   selectedVisibilityType: VisibilityType;
+  useWebSearch?: boolean;
+  onToggleWebSearch?: () => void;
 }
 
 function PureSuggestedActions({
   chatId,
   append,
   selectedVisibilityType,
+  useWebSearch = false,
+  onToggleWebSearch,
 }: SuggestedActionsProps) {
   const suggestedActions = [
     {
@@ -66,7 +70,14 @@ function PureSuggestedActions({
             }}
             className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
           >
-            <span className="font-medium">{suggestedAction.title}</span>
+            <div className="flex items-center justify-between w-full">
+              <span className="font-medium">{suggestedAction.title}</span>
+              {useWebSearch && (
+                <span className="text-xs text-blue-500 dark:text-blue-400 ml-1">
+                  Web
+                </span>
+              )}
+            </div>
             <span className="text-muted-foreground">
               {suggestedAction.label}
             </span>
@@ -82,6 +93,8 @@ export const SuggestedActions = memo(
   (prevProps, nextProps) => {
     if (prevProps.chatId !== nextProps.chatId) return false;
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
+      return false;
+    if (prevProps.useWebSearch !== nextProps.useWebSearch)
       return false;
 
     return true;

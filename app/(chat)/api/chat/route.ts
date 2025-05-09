@@ -76,8 +76,6 @@ export async function POST(request: Request) {
   try {
     const { id, message, selectedChatModel, selectedVisibilityType, webSearchEnabled } =
       requestBody;
-
-    console.log({ id, message, selectedChatModel, selectedVisibilityType, webSearchEnabled });
     
     const session = await auth();
 
@@ -93,6 +91,8 @@ export async function POST(request: Request) {
       differenceInHours: 24,
     });
 
+    // console.log({ id, message, selectedChatModel, selectedVisibilityType, webSearchEnabled });
+    
     if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
       return new Response(
         'You have exceeded your maximum number of messages for the day! Please try again later.',

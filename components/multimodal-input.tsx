@@ -234,6 +234,8 @@ function PureMultimodalInput({
             append={append}
             chatId={chatId}
             selectedVisibilityType={selectedVisibilityType}
+            useWebSearch={useWebSearch}
+            onToggleWebSearch={onToggleWebSearch}
           />
         )}
 
