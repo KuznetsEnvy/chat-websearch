@@ -74,10 +74,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { id, message, selectedChatModel, selectedVisibilityType } =
+    const { id, message, selectedChatModel, selectedVisibilityType, webSearchEnabled } =
       requestBody;
 
-    console.log({ id, message, selectedChatModel, selectedVisibilityType });
+    console.log({ id, message, selectedChatModel, selectedVisibilityType, webSearchEnabled });
     
     const session = await auth();
 
@@ -158,8 +158,14 @@ export async function POST(request: Request) {
     const stream = createDataStream({
       execute: (dataStream) => {
         const result = streamText({
-          model: myProvider.languageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel, requestHints }),
+          // model: myProvider.languageModel(selectedChatModel),
+          // system: systemPrompt({ selectedChatModel, requestHints }),
+          model: webSearchEnabled
+            ? perplexity('sonar-pro') // Use Perplexity's Sonar model when web search is enabled
+            : myProvider.languageModel(selectedChatModel),
+          system: webSearchEnabled
+            ? ""
+            : systemPrompt({ selectedChatModel, requestHints }),
           messages,
           maxSteps: 5,
           experimental_activeTools:

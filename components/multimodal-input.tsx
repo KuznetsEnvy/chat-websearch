@@ -198,7 +198,7 @@ function PureMultimodalInput({
   }, [status, scrollToBottom]);
 
 
-  console.log('%c' + 'PureMultimodalInput useWebSearch: ' + useWebSearch, 'color: blue;');
+  // console.log('%c' + 'PureMultimodalInput useWebSearch: ' + useWebSearch, 'color: blue;');
   
   return (
     <div className="relative w-full flex flex-col gap-4">
@@ -299,7 +299,7 @@ function PureMultimodalInput({
       />
 
       <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
-        <AttachmentsButton fileInputRef={fileInputRef} status={status} />
+        {/*<AttachmentsButton fileInputRef={fileInputRef} status={status} />*/}
         <WebSearchButton
           useWebSearch={useWebSearch}
           status={status}
@@ -425,7 +425,7 @@ function PureWebSearchButton({
   useWebSearch: boolean;
   onToggleWebSearch: () => void;
 }) {
-  console.log('%c' + 'PureWebSearchButton useWebSearch: ' + useWebSearch, 'color: violet;');
+  // console.log('%c' + 'PureWebSearchButton useWebSearch: ' + useWebSearch, 'color: violet;');
   
   return (
     <Button

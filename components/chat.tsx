@@ -121,19 +121,8 @@ export function Chat({
     setWebSearchEnabled(prev => {
       const newState = !prev;
 
-      console.log('%c' + 'Chat toggleWebSearch newState: ' + newState, 'color: green;');
+      // console.log('%c' + 'Chat toggleWebSearch newState: ' + newState, 'color: green;');
       
-      if (newState) {
-        toast({
-          description: "Web search enabled for next message",
-          type: "success",
-        });
-      } else {
-        toast({
-          description: "Web search disabled",
-          type: "success",
-        });
-      }
       return newState;
     });
   }, []);
