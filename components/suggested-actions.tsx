@@ -19,14 +19,14 @@ function PureSuggestedActions({
 }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: 'What is the score',
+      label: 'Manchester United and Athletic Club?',
+      action: 'What is the score of the latest match between Manchester United - Athletic Club?',
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: 'What is the current price',
+      label: `for the NASDAQ Composite Index`,
+      action: `What is the current NASDAQ price?`,
     },
     {
       title: 'Help me write an essay',
@@ -35,8 +35,8 @@ function PureSuggestedActions({
     },
     {
       title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      label: 'in Barcelona?',
+      action: 'What is the weather in Barcelona?',
     },
   ];
 

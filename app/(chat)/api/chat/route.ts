@@ -36,7 +36,9 @@ import { after } from 'next/server';
 import type { Chat } from '@/lib/db/schema';
 import { differenceInSeconds } from 'date-fns';
 
-export const maxDuration = 60;
+import { perplexity } from '@ai-sdk/perplexity';
+
+export const maxDuration = 30;
 
 let globalStreamContext: ResumableStreamContext | null = null;
 
@@ -67,6 +69,7 @@ export async function POST(request: Request) {
     const json = await request.json();
     requestBody = postRequestBodySchema.parse(json);
   } catch (_) {
+    console.log('chat::POST Invalid request body');
     return new Response('Invalid request body', { status: 400 });
   }
 
@@ -74,9 +77,12 @@ export async function POST(request: Request) {
     const { id, message, selectedChatModel, selectedVisibilityType } =
       requestBody;
 
+    console.log({ id, message, selectedChatModel, selectedVisibilityType });
+    
     const session = await auth();
 
     if (!session?.user) {
+      console.log('chat::POST Unauthorized');
       return new Response('Unauthorized', { status: 401 });
     }
 
@@ -111,6 +117,7 @@ export async function POST(request: Request) {
       });
     } else {
       if (chat.userId !== session.user.id) {
+        console.log('chat::POST Forbidden');
         return new Response('Forbidden', { status: 403 });
       }
     }
