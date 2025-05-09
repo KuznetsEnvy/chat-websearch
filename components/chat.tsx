@@ -188,6 +188,8 @@ export function Chat({
         stop={stop}
         attachments={attachments}
         setAttachments={setAttachments}
+        useWebSearch={webSearchEnabled}
+        onToggleWebSearch={toggleWebSearch}
         append={append}
         messages={messages}
         setMessages={setMessages}

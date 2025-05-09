@@ -61,6 +61,8 @@ function PureArtifact({
   stop,
   attachments,
   setAttachments,
+  useWebSearch,
+  onToggleWebSearch,
   append,
   messages,
   setMessages,
@@ -76,6 +78,8 @@ function PureArtifact({
   stop: UseChatHelpers['stop'];
   attachments: Array<Attachment>;
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
+  useWebSearch: boolean;
+  onToggleWebSearch: () => void;
   messages: Array<UIMessage>;
   setMessages: UseChatHelpers['setMessages'];
   votes: Array<Vote> | undefined;
@@ -334,6 +338,8 @@ function PureArtifact({
                     stop={stop}
                     attachments={attachments}
                     setAttachments={setAttachments}
+                    useWebSearch={useWebSearch}
+                    onToggleWebSearch={onToggleWebSearch}
                     messages={messages}
                     append={append}
                     className="bg-background dark:bg-muted"
@@ -509,6 +515,7 @@ export const Artifact = memo(PureArtifact, (prevProps, nextProps) => {
   if (!equal(prevProps.messages, nextProps.messages.length)) return false;
   if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
     return false;
+  if (prevProps.useWebSearch !== nextProps.useWebSearch) return false;
 
   return true;
 });
