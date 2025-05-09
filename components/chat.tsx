@@ -2,7 +2,7 @@
 
 import type { Attachment, UIMessage } from 'ai';
 import { useChat } from '@ai-sdk/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { ChatHeader } from '@/components/chat-header';
 import type { Vote } from '@/lib/db/schema';
@@ -62,12 +62,23 @@ export function Chat({
     experimental_throttle: 100,
     sendExtraMessageFields: true,
     generateId: generateUUID,
-    experimental_prepareRequestBody: (body) => ({
-      id,
-      message: body.messages.at(-1),
-      selectedChatModel: initialChatModel,
-      selectedVisibilityType: visibilityType,
-    }),
+    experimental_prepareRequestBody: (body) => {
+      // Prepare the request body with web search flag
+      const requestBody = {
+        id,
+        message: body.messages.at(-1),
+        selectedChatModel: initialChatModel,
+        selectedVisibilityType: visibilityType,
+        webSearchEnabled: webSearchEnabled,
+      };
+
+      // Reset web search flag after sending
+      if (webSearchEnabled) {
+        setWebSearchEnabled(false);
+      }
+
+      return requestBody;
+    },
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
     },
@@ -102,7 +113,30 @@ export function Chat({
   );
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
+  const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(false);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
+
+  // Function to toggle web search
+  const toggleWebSearch = useCallback(() => {
+    setWebSearchEnabled(prev => {
+      const newState = !prev;
+
+      console.log('%c' + 'Chat toggleWebSearch newState: ' + newState, 'color: green;');
+      
+      if (newState) {
+        toast({
+          description: "Web search enabled for next message",
+          type: "success",
+        });
+      } else {
+        toast({
+          description: "Web search disabled",
+          type: "success",
+        });
+      }
+      return newState;
+    });
+  }, []);
 
   useAutoResume({
     autoResume,
@@ -145,7 +179,8 @@ export function Chat({
               stop={stop}
               attachments={attachments}
               setAttachments={setAttachments}
-              useWebSearch={false} // TODO Kuz: implement this
+              useWebSearch={webSearchEnabled}
+              onToggleWebSearch={toggleWebSearch}
               messages={messages}
               setMessages={setMessages}
               append={append}

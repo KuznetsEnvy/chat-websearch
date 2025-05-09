@@ -37,6 +37,7 @@ function PureMultimodalInput({
   attachments,
   setAttachments,
   useWebSearch,
+  onToggleWebSearch,
   messages,
   setMessages,
   append,
@@ -52,6 +53,7 @@ function PureMultimodalInput({
   attachments: Array<Attachment>;
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
   useWebSearch: boolean;
+  onToggleWebSearch: () => void;
   messages: Array<UIMessage>;
   setMessages: UseChatHelpers['setMessages'];
   append: UseChatHelpers['append'];
@@ -270,7 +272,7 @@ function PureMultimodalInput({
       <Textarea
         data-testid="multimodal-input"
         ref={textareaRef}
-        placeholder="Send a message..."
+        placeholder={useWebSearch ? "Send a message with web search..." : "Send a message..."}
         value={input}
         onChange={handleInput}
         className={cx(
@@ -298,7 +300,11 @@ function PureMultimodalInput({
 
       <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
         <AttachmentsButton fileInputRef={fileInputRef} status={status} />
-        <WebSearchButton useWebSearch={useWebSearch} status={status} />
+        <WebSearchButton
+          useWebSearch={useWebSearch}
+          status={status}
+          onToggleWebSearch={onToggleWebSearch}
+        />
       </div>
 
       <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
@@ -324,6 +330,7 @@ export const MultimodalInput = memo(
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
       return false;
+    if (prevProps.useWebSearch !== nextProps.useWebSearch) return false;
 
     return true;
   },
@@ -412,9 +419,11 @@ const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
 function PureWebSearchButton({
   status,
   useWebSearch,
+  onToggleWebSearch,
 }: {
   status: UseChatHelpers['status'];
   useWebSearch: boolean;
+  onToggleWebSearch: () => void;
 }) {
   console.log('%c' + 'PureWebSearchButton useWebSearch: ' + useWebSearch, 'color: violet;');
   
@@ -424,18 +433,16 @@ function PureWebSearchButton({
       data-usewebsearch={useWebSearch ? "true" : "false"}
       className={`rounded-md ml-1 p-[7px] h-fit ${
         useWebSearch
-          ? "bg-blue-100 dark:bg-blue-900"
-          : "dark:border-zinc-700 hover:dark:bg-zinc-900 hover:bg-zinc-200"
+          ? "bg-blue-100 dark:bg-blue-900 hover:bg-zinc-200"
+          : "dark:border-zinc-700 hover:dark:bg-zinc-900 hover:bg-zinc-300"
       }`}
       onClick={(event) => {
         event.preventDefault();
-        // Just toggle the state by dispatching a custom event that the parent component will listen to
-        const toggleEvent = new CustomEvent('toggleWebSearch', { bubbles: true });
-        event.currentTarget.dispatchEvent(toggleEvent);
+        onToggleWebSearch();
       }}
       disabled={status !== 'ready'}
       variant="ghost"
-      title="Search the web"
+      title={useWebSearch ? "Web search enabled" : "Enable web search"}
     >
       <GlobeIcon size={14} />
     </Button>
