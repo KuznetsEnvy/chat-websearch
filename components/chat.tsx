@@ -145,6 +145,7 @@ export function Chat({
               stop={stop}
               attachments={attachments}
               setAttachments={setAttachments}
+              useWebSearch={false} // TODO Kuz: implement this
               messages={messages}
               setMessages={setMessages}
               append={append}

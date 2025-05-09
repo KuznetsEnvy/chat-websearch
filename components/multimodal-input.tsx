@@ -16,7 +16,7 @@ import {
 import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 
-import { ArrowUpIcon, PaperclipIcon, StopIcon } from './icons';
+import { ArrowUpIcon, PaperclipIcon, StopIcon, GlobeIcon } from './icons';
 import { PreviewAttachment } from './preview-attachment';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
@@ -36,6 +36,7 @@ function PureMultimodalInput({
   stop,
   attachments,
   setAttachments,
+  useWebSearch,
   messages,
   setMessages,
   append,
@@ -50,6 +51,7 @@ function PureMultimodalInput({
   stop: () => void;
   attachments: Array<Attachment>;
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
+  useWebSearch: boolean;
   messages: Array<UIMessage>;
   setMessages: UseChatHelpers['setMessages'];
   append: UseChatHelpers['append'];
@@ -193,6 +195,9 @@ function PureMultimodalInput({
     }
   }, [status, scrollToBottom]);
 
+
+  console.log('%c' + 'PureMultimodalInput useWebSearch: ' + useWebSearch, 'color: blue;');
+  
   return (
     <div className="relative w-full flex flex-col gap-4">
       <AnimatePresence>
@@ -293,6 +298,7 @@ function PureMultimodalInput({
 
       <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
         <AttachmentsButton fileInputRef={fileInputRef} status={status} />
+        <WebSearchButton useWebSearch={useWebSearch} status={status} />
       </div>
 
       <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
@@ -402,3 +408,38 @@ const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
   if (prevProps.input !== nextProps.input) return false;
   return true;
 });
+
+function PureWebSearchButton({
+  status,
+  useWebSearch,
+}: {
+  status: UseChatHelpers['status'];
+  useWebSearch: boolean;
+}) {
+  console.log('%c' + 'PureWebSearchButton useWebSearch: ' + useWebSearch, 'color: violet;');
+  
+  return (
+    <Button
+      data-testid="web-search-button"
+      data-usewebsearch={useWebSearch ? "true" : "false"}
+      className={`rounded-md ml-1 p-[7px] h-fit ${
+        useWebSearch
+          ? "bg-blue-100 dark:bg-blue-900"
+          : "dark:border-zinc-700 hover:dark:bg-zinc-900 hover:bg-zinc-200"
+      }`}
+      onClick={(event) => {
+        event.preventDefault();
+        // Just toggle the state by dispatching a custom event that the parent component will listen to
+        const toggleEvent = new CustomEvent('toggleWebSearch', { bubbles: true });
+        event.currentTarget.dispatchEvent(toggleEvent);
+      }}
+      disabled={status !== 'ready'}
+      variant="ghost"
+      title="Search the web"
+    >
+      <GlobeIcon size={14} />
+    </Button>
+  );
+}
+
+const WebSearchButton = memo(PureWebSearchButton);
