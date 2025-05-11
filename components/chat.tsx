@@ -20,6 +20,7 @@ import { useSearchParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import { entitlementsByUserType } from '@/lib/ai/entitlements';
+import { getUserMessageCount } from '@/app/(chat)/quota-actions';
 
 export function Chat({
   id,
@@ -84,6 +85,7 @@ export function Chat({
     },
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
+      refreshMessageCount(); // Refresh message count after each message
     },
     onError: (error) => {
       toast({
@@ -103,6 +105,16 @@ export function Chat({
   // Calculate daily quota from user type
   const userType = session.user.type;
   const { maxMessagesPerDay } = entitlementsByUserType[userType];
+
+  // Fetch current message count for the user
+  const { data: messageCount = 0, mutate: refreshMessageCount } = useSWR(
+    `user-message-count-${session.user.id}`,
+    () => getUserMessageCount(session.user.id),
+    { refreshInterval: 60000 } // Refresh every minute
+  );
+
+  // Calculate messages left
+  const messagesLeft = Math.max(0, maxMessagesPerDay - messageCount);
   // endregion Daily Quota CTA
 
   useEffect(() => {
@@ -185,6 +197,7 @@ export function Chat({
               append={append}
               selectedVisibilityType={visibilityType}
               dailyQuota={maxMessagesPerDay}
+              messagesLeft={messagesLeft}
             />
           )}
         </form>

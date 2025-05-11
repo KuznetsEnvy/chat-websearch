@@ -46,6 +46,7 @@ function PureMultimodalInput({
   className,
   selectedVisibilityType,
   dailyQuota,
+  messagesLeft,
 }: {
   chatId: string;
   input: UseChatHelpers['input'];
@@ -63,6 +64,7 @@ function PureMultimodalInput({
   className?: string;
   selectedVisibilityType: VisibilityType;
   dailyQuota: number;
+  messagesLeft: number;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -313,7 +315,12 @@ function PureMultimodalInput({
       </div>
 
       <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row items-center justify-end gap-2">
-        {status === 'ready' && <MessageQuotaDisplay dailyQuota={dailyQuota} />}
+        {status === 'ready' && (
+          <MessageQuotaDisplay
+            dailyQuota={dailyQuota}
+            messagesLeft={messagesLeft}
+          />
+        )}
         {status === 'submitted' ? (
           <StopButton stop={stop} setMessages={setMessages} />
         ) : (
@@ -338,6 +345,7 @@ export const MultimodalInput = memo(
       return false;
     if (prevProps.useWebSearch !== nextProps.useWebSearch) return false;
     if (prevProps.dailyQuota !== nextProps.dailyQuota) return false;
+    if (prevProps.messagesLeft !== nextProps.messagesLeft) return false;
 
     return true;
   },
