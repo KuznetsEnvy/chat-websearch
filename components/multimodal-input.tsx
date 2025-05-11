@@ -28,6 +28,7 @@ import { ArrowDown } from 'lucide-react';
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
 import type { VisibilityType } from './visibility-selector';
 import { MessageQuotaDisplay } from './message-quota-display';
+import { QuotaLimitAlert } from './quota-limit-alert';
 
 function PureMultimodalInput({
   chatId,
@@ -108,9 +109,9 @@ function PureMultimodalInput({
   }, []);
 
   useEffect(() => {
-    console.log('effect invoked with input: ' + input);
+    console.log(`'effect invoked with ${typeof input} input: ${input}`);
     if (input !== localStorageInput) {
-      console.log('effect calls setLocalStorageInput.');
+      console.log(`'effect calls setLocalStorageInput('${input}');'`);
       setLocalStorageInput(input);
     }
   }, [input, localStorageInput, setLocalStorageInput]);
@@ -211,8 +212,17 @@ function PureMultimodalInput({
   // console.log('%c' + 'PureMultimodalInput useWebSearch: ' + useWebSearch, 'color: blue;');
   console.log('status: ' + status);
 
-  console.groupEnd();
+  // Check if user has reached the message limit
+  const hasReachedMessageLimit = messagesLeft <= 0;
 
+  console.groupEnd();
+  
+  // If the user has reached their message limit, show the quota limit alert
+  if (hasReachedMessageLimit) {
+    return <QuotaLimitAlert />;
+  }
+
+  // Otherwise, show the normal chat input
   return (
     <div className="relative w-full flex flex-col gap-4">
       <AnimatePresence>
@@ -327,7 +337,7 @@ function PureMultimodalInput({
           dailyQuota={dailyQuota}
           messagesLeft={messagesLeft}
         />
-        
+
         {status === 'submitted' ? (
           <StopButton stop={stop} setMessages={setMessages} />
         ) : (
@@ -346,7 +356,7 @@ export const MultimodalInput = memo(
   PureMultimodalInput,
   (prevProps, nextProps) => {
     console.group('MultimodalInput memo comparison');
-    
+
     if (prevProps.input !== nextProps.input) {
       console.debug('input changed', prevProps.input, nextProps.input);
       console.groupEnd();
@@ -462,8 +472,7 @@ function PureSendButton({
 }
 
 const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
-  if (prevProps.uploadQueue.length !== nextProps.uploadQueue.length)
-    return false;
+  if (prevProps.uploadQueue.length !== nextProps.uploadQueue.length) return false;
   if (prevProps.input !== nextProps.input) return false;
   return true;
 });
