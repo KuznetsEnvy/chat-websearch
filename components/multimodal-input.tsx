@@ -28,7 +28,6 @@ import { ArrowDown } from 'lucide-react';
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
 import type { VisibilityType } from './visibility-selector';
 import { MessageQuotaDisplay } from './message-quota-display';
-import type { Session } from 'next-auth';
 
 function PureMultimodalInput({
   chatId,
@@ -46,7 +45,7 @@ function PureMultimodalInput({
   handleSubmit,
   className,
   selectedVisibilityType,
-  session,
+  dailyQuota,
 }: {
   chatId: string;
   input: UseChatHelpers['input'];
@@ -63,7 +62,7 @@ function PureMultimodalInput({
   handleSubmit: UseChatHelpers['handleSubmit'];
   className?: string;
   selectedVisibilityType: VisibilityType;
-  session: Session;
+  dailyQuota: number;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -314,7 +313,7 @@ function PureMultimodalInput({
       </div>
 
       <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row items-center justify-end gap-2">
-        {status === 'ready' && <MessageQuotaDisplay session={session} />}
+        {status === 'ready' && <MessageQuotaDisplay dailyQuota={dailyQuota} />}
         {status === 'submitted' ? (
           <StopButton stop={stop} setMessages={setMessages} />
         ) : (
@@ -338,8 +337,7 @@ export const MultimodalInput = memo(
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
       return false;
     if (prevProps.useWebSearch !== nextProps.useWebSearch) return false;
-    if (prevProps.session.user.id !== nextProps.session.user.id) return false;
-    if (prevProps.session.user.type !== nextProps.session.user.type) return false;
+    if (prevProps.dailyQuota !== nextProps.dailyQuota) return false;
 
     return true;
   },

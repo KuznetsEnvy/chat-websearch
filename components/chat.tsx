@@ -19,6 +19,7 @@ import type { Session } from 'next-auth';
 import { useSearchParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { useAutoResume } from '@/hooks/use-auto-resume';
+import { entitlementsByUserType } from '@/lib/ai/entitlements';
 
 export function Chat({
   id,
@@ -62,7 +63,9 @@ export function Chat({
     experimental_throttle: 100,
     sendExtraMessageFields: true,
     generateId: generateUUID,
+    
     experimental_prepareRequestBody: (body) => {
+      // TODO Kuz: ask Claude Code how this works
       // Prepare the request body with web search flag
       const requestBody = {
         id,
@@ -94,6 +97,13 @@ export function Chat({
   const query = searchParams.get('query');
 
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
+
+  // region Daily Quota CTA
+  // TODO Kuz: Ask Claude Code how to understanding if `useState` is needed or not here?   
+  // Calculate daily quota from user type
+  const userType = session.user.type;
+  const { maxMessagesPerDay } = entitlementsByUserType[userType];
+  // endregion Daily Quota CTA
 
   useEffect(() => {
     if (query && !hasAppendedQuery) {
@@ -174,7 +184,7 @@ export function Chat({
               setMessages={setMessages}
               append={append}
               selectedVisibilityType={visibilityType}
-              session={session}
+              dailyQuota={maxMessagesPerDay}
             />
           )}
         </form>
