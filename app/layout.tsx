@@ -70,7 +70,12 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased">
+      <body
+        // Browser extensions like 'Video Speed Control' may add classes to the body. 
+        // `suppressHydrationWarning` is to acknowledge the issue. 
+        suppressHydrationWarning 
+        className="antialiased"
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
