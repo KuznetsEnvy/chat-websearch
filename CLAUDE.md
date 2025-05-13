@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Development
 
+When implementing new functionality, avoid creating new icons, and search for the most applicable icon from `components/icons.tsx`  
+
 ```bash
 # Install dependencies
 pnpm install
