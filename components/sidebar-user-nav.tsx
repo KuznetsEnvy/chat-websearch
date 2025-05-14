@@ -2,6 +2,7 @@
 
 import { ChevronUp } from 'lucide-react';
 import Image from 'next/image';
+import Link from "next/link";
 import type { User } from 'next-auth';
 import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
@@ -71,6 +72,14 @@ export function SidebarUserNav({ user }: { user: User }) {
             side="top"
             className="w-[--radix-popper-anchor-width]"
           >
+            <DropdownMenuItem
+              data-testid="user-nav-item-purchase"
+            >
+              <Link href="/?show=true">
+                Premium membership
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               data-testid="user-nav-item-theme"
               className="cursor-pointer"
