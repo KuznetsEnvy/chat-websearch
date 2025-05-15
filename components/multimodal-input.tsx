@@ -67,7 +67,7 @@ function PureMultimodalInput({
   dailyQuota: number;
   messagesLeft: number;
 }) {
-  console.group('PureMultimodalInput');
+  // console.group('PureMultimodalInput');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
 
@@ -109,9 +109,9 @@ function PureMultimodalInput({
   }, []);
 
   useEffect(() => {
-    console.log(`'effect invoked with ${typeof input} input: ${input}`);
+    // console.log(`'effect invoked with ${typeof input} input: ${input}`);
     if (input !== localStorageInput) {
-      console.log(`'effect calls setLocalStorageInput('${input}');'`);
+      // console.log(`'effect calls setLocalStorageInput('${input}');'`);
       setLocalStorageInput(input);
     }
   }, [input, localStorageInput, setLocalStorageInput]);
@@ -192,7 +192,7 @@ function PureMultimodalInput({
           ...successfullyUploadedAttachments,
         ]);
       } catch (error) {
-        console.error('Error uploading files!', error);
+        // console.error('Error uploading files!', error);
       } finally {
         setUploadQueue([]);
       }
@@ -210,12 +210,12 @@ function PureMultimodalInput({
 
 
   // console.log('%c' + 'PureMultimodalInput useWebSearch: ' + useWebSearch, 'color: blue;');
-  console.log('status: ' + status);
+  // console.log('status: ' + status);
 
   // Check if user has reached the message limit
   const hasReachedMessageLimit = messagesLeft <= 0;
 
-  console.groupEnd();
+  // console.groupEnd();
   
   // If the user has reached their message limit, show the quota limit alert
   if (hasReachedMessageLimit) {
@@ -355,45 +355,45 @@ function PureMultimodalInput({
 export const MultimodalInput = memo(
   PureMultimodalInput,
   (prevProps, nextProps) => {
-    console.group('MultimodalInput memo comparison');
+    // console.group('MultimodalInput memo comparison');
 
     if (prevProps.input !== nextProps.input) {
-      console.debug('input changed', prevProps.input, nextProps.input);
-      console.groupEnd();
+      // console.debug('input changed', prevProps.input, nextProps.input);
+      // console.groupEnd();
       return false;
     }
     if (prevProps.status !== nextProps.status) {
-      console.debug('status changed', prevProps.status, nextProps.status);
-      console.groupEnd();
+      // console.debug('status changed', prevProps.status, nextProps.status);
+      // console.groupEnd();
       return false;
     }
     if (!equal(prevProps.attachments, nextProps.attachments)) {
-      console.debug('attachments changed', prevProps.attachments, nextProps.attachments);
-      console.groupEnd();
+      // console.debug('attachments changed', prevProps.attachments, nextProps.attachments);
+      // console.groupEnd();
       return false;
     }
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
-      console.debug('selectedVisibilityType changed', prevProps.selectedVisibilityType, nextProps.selectedVisibilityType);
-      console.groupEnd();
+      // console.debug('selectedVisibilityType changed', prevProps.selectedVisibilityType, nextProps.selectedVisibilityType);
+      // console.groupEnd();
       return false;
     }
     if (prevProps.useWebSearch !== nextProps.useWebSearch) {
-      console.debug('useWebSearch changed', prevProps.useWebSearch, nextProps.useWebSearch);
-      console.groupEnd();
+      // console.debug('useWebSearch changed', prevProps.useWebSearch, nextProps.useWebSearch);
+      // console.groupEnd();
       return false;
     }
     if (prevProps.dailyQuota !== nextProps.dailyQuota) {
-      console.debug('dailyQuota changed', prevProps.dailyQuota, nextProps.dailyQuota);
-      console.groupEnd();
+      // console.debug('dailyQuota changed', prevProps.dailyQuota, nextProps.dailyQuota);
+      // console.groupEnd();
       return false;
     }
     if (prevProps.messagesLeft !== nextProps.messagesLeft) {
-      console.debug('messagesLeft changed', prevProps.messagesLeft, nextProps.messagesLeft);
-      console.groupEnd();
+      // console.debug('messagesLeft changed', prevProps.messagesLeft, nextProps.messagesLeft);
+      // console.groupEnd();
       return false;
     }
 
-    console.groupEnd();
+    // console.groupEnd();
     return true;
   },
 );
