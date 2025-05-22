@@ -37,6 +37,9 @@ export default async function Page({ params, searchParams }: PageProps) {
 
   const show = resolvedSearchParams?.show;
   
+  // console.log('Page session type:');
+  // console.log({ session });
+
   if (!modelIdFromCookie) {
     return (
       <>
@@ -68,7 +71,7 @@ export default async function Page({ params, searchParams }: PageProps) {
         autoResume={false}
       />
       <DataStreamHandler id={id} />
-      {show && <Modal />}
+      {show && session.user.type === 'regular' && <Modal />}
     </>
   );
 }

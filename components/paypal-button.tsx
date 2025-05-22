@@ -11,6 +11,11 @@ interface CartItem {
   quantity: number;
 }
 
+interface PayPalFormProps {
+  onPaymentSuccess?: (data: any) => void;
+  onPaymentError?: () => void;
+}
+
 const cartItems: CartItem[] = [
   {
     id: 1,
@@ -19,13 +24,15 @@ const cartItems: CartItem[] = [
     quantity: 1,
   }
 ];
-export default function PayPalFromTutorial() {
+
+export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalFormProps) {
   const router = useRouter();
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
   const SHIPPING_COST = 0.00;
   const [isProcessing, setIsProcessing] = useState(false);
   const [paypalError, setPaypalError] = useState("");
+  
   // Calculate subtotal and total
   useEffect(() => {
     const calculatedSubtotal = cartItems.reduce((acc, item) =>
@@ -34,6 +41,7 @@ export default function PayPalFromTutorial() {
     setSubtotal(calculatedSubtotal);
     setTotal(calculatedSubtotal + SHIPPING_COST);
   }, []);
+  
   const createOrder = (data: any, actions: any) => {
     return actions.order.create({
       purchase_units: [
@@ -42,11 +50,12 @@ export default function PayPalFromTutorial() {
             value: total.toFixed(2),
             currency_code: 'USD',
           },
-          description: `Farm Market Order`,
+          description: `Donation for Premium membership`,
         },
       ],
     });
   };
+  
   const onApprove = async (data: any, actions: any) => {
     setIsProcessing(true);
     try {
@@ -64,7 +73,7 @@ export default function PayPalFromTutorial() {
         orderID: data.orderID,
       };
 
-      console.log('Sending to API:', paymentData);
+      console.log('Sending paymentData to API:', paymentData);
 
       // Send payment data to our API
       const response = await fetch('/api/paypal', {
@@ -74,25 +83,51 @@ export default function PayPalFromTutorial() {
         },
         body: JSON.stringify(paymentData),
       });
-      console.log('API response:', response);
+      
+      console.log('paymentData API response:', response);
+      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('API error response:', errorText);
+        console.error('PayPal API error response:', errorText);
         throw new Error('Payment processing failed');
       }
+      
       const result = await response.json();
-      console.log('API response:', result);
-      alert('Payment processed successfully!');
+      // alert('Payment processed successfully!');
+      console.log('Payment processed successfully:');
+      console.log(result);
+
+      // Call the success callback with payment data
+      if (onPaymentSuccess) {
+        onPaymentSuccess({
+          ...paymentData,
+          captureID: result.data.captureID,
+          captureStatus: result.data.captureStatus
+        });
+      }
+      
     } catch (error) {
       console.error('Payment failed:', error);
       setPaypalError('Payment failed. Please try again.');
+
+      // Call the error callback
+      if (onPaymentError) {
+        onPaymentError();
+      }
+      
     } finally {
       setIsProcessing(false);
     }
   };
+  
   const onError = (err: any) => {
     console.error('PayPal error:', err);
     setPaypalError('An error occurred with PayPal. Please try again.');
+
+    // Call the error callback
+    if (onPaymentError) {
+      onPaymentError();
+    }
   };
   return (
     <div>
@@ -102,40 +137,14 @@ export default function PayPalFromTutorial() {
         <br/>This is only to showcase our chatbot capabilities and is <b>not a real membership</b> and comes with no guarantee. Functionality may change without previous notice. 
         <br/>Please consider this purchase <b>a donation</b> to our team.
       </p>
-      {/* Cart Items */}
-      {/*<ul className="space-y-4 mb-6">
-        {cartItems.map((cartItem) => (
-          <li key={cartItem.id} className="flex items-center gap-4 pb-4 border-b">
-            <Image
-              src={cartItem.image}
-              width={80}
-              height={80}
-              alt={`Image of ${cartItem.name}`}
-              className="rounded"
-            />
-            <div className="flex-1">
-              <h4 className="font-medium">{cartItem.name}</h4>
-              <p className="text-gray-700">${cartItem.price.toFixed(2)}</p>
-              <p className="text-sm text-gray-500">Quantity: {cartItem.quantity}</p>
-            </div>
-          </li>
-        ))}
-      </ul>*/}
-      {/* Price Summary */}
+      
       <div className="space-y-2 mb-6">
-        {/*<div className="flex justify-between text-gray-600">
-          <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-gray-600">
-          <span>Shipping</span>
-          <span>${SHIPPING_COST.toFixed(2)}</span>
-        </div>*/}
         <div className="flex justify-between font-bold text-lg pt-2 mt-2 border-t">
           <span>Total</span>
           <span>${total.toFixed(2)}</span>
         </div>
       </div>
+      
       {/* Processing State */}
       {isProcessing && (
         <div className="mb-4 text-center">
@@ -143,12 +152,14 @@ export default function PayPalFromTutorial() {
           <span>Processing your payment...</span>
         </div>
       )}
+      
       {/* Error Message */}
       {paypalError && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
           {paypalError}
         </div>
       )}
+      
       {/* PayPal Button */}
       <PayPalScriptProvider options={{
         clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '',
@@ -163,7 +174,8 @@ export default function PayPalFromTutorial() {
           disabled={isProcessing}
         />
       </PayPalScriptProvider>
-      <p className="text-xs text-gray-500 text-center mt-4">
+      
+      <p className="text-xs text-gray-500 text-center">
         By completing this purchase, you agree to our terms and conditions.
       </p>
     </div>

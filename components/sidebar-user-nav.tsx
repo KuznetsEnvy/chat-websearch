@@ -19,15 +19,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from './toast';
 import { LoaderIcon } from './icons';
 import { guestRegex } from '@/lib/constants';
 
 export function SidebarUserNav({ user }: { user: User }) {
+  const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data, status } = useSession();
   const { setTheme, theme } = useTheme();
+
+  // console.log("sidebar-user-nav");
+  // console.log("data:");
+  // console.log(data);
+  // console.log("status:");
+  // console.log(status);
 
   const isGuest = guestRegex.test(data?.user?.email ?? '');
 
@@ -72,14 +80,30 @@ export function SidebarUserNav({ user }: { user: User }) {
             side="top"
             className="w-[--radix-popper-anchor-width]"
           >
-            <DropdownMenuItem
-              data-testid="user-nav-item-purchase"
-            >
-              <Link href="/?show=true">
-                Premium membership
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            {
+              data?.user?.type === 'regular' &&
+                <>
+                    <DropdownMenuItem
+                        data-testid="user-nav-item-purchase"
+                        className="cursor-pointer"
+                        onSelect={()=> {
+                          const params = new URLSearchParams(searchParams);
+                          params.set('show', 'true');
+                          
+                          const newUrl = `${pathname}?${params.toString()}`;
+                          const currentUrl = `${pathname}?${searchParams.toString()}`;
+
+                          if (newUrl !== currentUrl) {
+                            router.replace(newUrl);
+                          }
+                        }}
+                    >
+                        Premium membership
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                </>
+            }
+
             <DropdownMenuItem
               data-testid="user-nav-item-theme"
               className="cursor-pointer"

@@ -39,9 +39,10 @@ async function getPayPalAccessToken() {
 
 async function capturePayPalOrder(orderID: string, accessToken: string) {
   try {
-    console.log(`Capturing order ${orderID} with token ${accessToken.substring(0, 10)}...`);
-
-    const response = await fetch(`${PAYPAL_API_URL}/v2/checkout/orders/${orderID}/capture`, {
+    const ppOrderCaptureEndpoint = `${PAYPAL_API_URL}/v2/checkout/orders/${orderID}/capture`;
+    
+    console.log(`Capturing order ${orderID} with token ${accessToken.substring(0, 10)}... at ${ppOrderCaptureEndpoint}`);
+    const response = await fetch(ppOrderCaptureEndpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -49,8 +50,13 @@ async function capturePayPalOrder(orderID: string, accessToken: string) {
       },
       body: JSON.stringify({}),
     });
+    // console.log('Capture response:');
+    // console.log(response);
+
     const data = await response.json();
-    console.log('Capture response:', data);
+
+    console.log('Returning capture response data:');
+    console.log(data);
     return data;
   } catch (error) {
     console.error('Error capturing PayPal order:', error);
@@ -69,7 +75,7 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    // Get PayPal access token
+    // Get the PayPal access token
     const accessToken = await getPayPalAccessToken();
     console.log('Got PayPal access token (' + typeof accessToken + '): ' + accessToken);
     // Capture the payment
