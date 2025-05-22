@@ -60,7 +60,8 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
     setIsProcessing(true);
     try {
       const order = await actions.order.get();
-      console.log('Payment successful', order);
+      // console.log('PayPalForm onApprove: payment successful:');
+      // console.log(order);
 
       // Extract payer information from PayPal response
       const payerName = order.payer?.name?.given_name || '';

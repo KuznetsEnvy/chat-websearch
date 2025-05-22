@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { logPayPal } from "@/lib/db/queries";
 
 interface PaymentData {
   name: string;
@@ -13,8 +14,8 @@ const PAYPAL_API_URL = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.payp
 async function getPayPalAccessToken() {
   try {
     const auth = Buffer.from(`${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64');
-    console.log(`getPayPalAccessToken: ${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`);
-    console.log(`PAYPAL_API_URL: ${PAYPAL_API_URL}`);
+    // console.log(`getPayPalAccessToken: ${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`);
+    // console.log(`PAYPAL_API_URL: ${PAYPAL_API_URL}`);
     const response = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
       method: 'POST',
       headers: {
@@ -55,6 +56,7 @@ async function capturePayPalOrder(orderID: string, accessToken: string) {
 
     const data = await response.json();
 
+    await logPayPal(data);
     console.log('Returning capture response data:');
     console.log(data);
     return data;
@@ -67,20 +69,25 @@ async function capturePayPalOrder(orderID: string, accessToken: string) {
 export async function POST(request: Request) {
   try {
     const data: PaymentData = await request.json();
-    console.log('Received payment data:', data);
-    // Validate the payment data
+    console.log('PayPal endpoint received payment data:', data);
+    // region Validate the payment data
     if (!data.name || !data.email || !data.amount || !data.orderID) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 },
       );
     }
-    // Get the PayPal access token
+    // endregion Validate the payment data
+    
+    // region Get the PayPal access token
     const accessToken = await getPayPalAccessToken();
-    console.log('Got PayPal access token (' + typeof accessToken + '): ' + accessToken);
+    // console.log('PayPal endpoint got PayPal access token (' + typeof accessToken + '): ' + accessToken);
+    // endregion Get the PayPal access token
+    
     // Capture the payment
     const captureData = await capturePayPalOrder(data.orderID, accessToken);
     console.log('PayPal capture response:', captureData);
+    
     // Check if capture was successful
     if (captureData.status !== 'COMPLETED') {
       console.log(`Invalid capture status: ${captureData.status}`);

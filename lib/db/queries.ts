@@ -9,7 +9,7 @@ import {
   gt,
   gte,
   inArray,
-  lt,
+  lt, sql,
   type SQL,
 } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -27,6 +27,8 @@ import {
   type DBMessage,
   type Chat,
   stream,
+  payment,
+  type Payment
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
@@ -509,3 +511,18 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
     throw error;
   }
 }
+
+
+// region PayPal
+export async function logPayPal(data: object) {
+  try {
+    const data_string = JSON.stringify(data);
+    return await db.insert(payment).values({
+      data: sql`${data_string}::jsonb`
+    });
+  } catch (error) {
+    console.error('Failed to log a PayPal transaction');
+    throw error;
+  }
+}
+// endregion PayPal
