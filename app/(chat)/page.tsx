@@ -18,6 +18,7 @@ export default async function Page({ params, searchParams }: PageProps) {
   const session = await auth();
 
   if (!session) {
+    console.log('Session not found, redirecting to /api/auth/guest.');
     redirect('/api/auth/guest');
   }
 
@@ -40,23 +41,7 @@ export default async function Page({ params, searchParams }: PageProps) {
   // console.log('Page session type:');
   // console.log({ session });
 
-  if (!modelIdFromCookie) {
-    return (
-      <>
-        <Chat
-          key={id}
-          id={id}
-          initialMessages={[]}
-          initialChatModel={DEFAULT_CHAT_MODEL}
-          initialVisibilityType="private"
-          isReadonly={false}
-          session={session}
-          autoResume={false}
-        />
-        <DataStreamHandler id={id} />
-      </>
-    );
-  }
+  const initialChatModel = modelIdFromCookie ?  modelIdFromCookie.value : DEFAULT_CHAT_MODEL;
 
   return (
     <>
@@ -64,7 +49,7 @@ export default async function Page({ params, searchParams }: PageProps) {
         key={id}
         id={id}
         initialMessages={[]}
-        initialChatModel={modelIdFromCookie.value}
+        initialChatModel={initialChatModel}
         initialVisibilityType="private"
         isReadonly={false}
         session={session}
