@@ -89,7 +89,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                         onSelect={()=> {
                           const params = new URLSearchParams(searchParams);
                           params.set('show', 'true');
-                          
+
                           const newUrl = `${pathname}?${params.toString()}`;
                           const currentUrl = `${pathname}?${searchParams.toString()}`;
 

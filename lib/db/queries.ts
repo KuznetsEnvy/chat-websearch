@@ -90,7 +90,7 @@ export async function updateUserToPremium(userId: string) {
     const planId = 'c9754728-8104-4be2-a32c-d89b3d7c8846';
     
     if (activeSubscriptions.length === 0) {
-      createSubscription(userId, planId);
+      await createSubscription(userId, planId);
     } else {
       // updateSubscription(subscriptionId, planId);
     }

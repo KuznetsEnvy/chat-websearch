@@ -64,7 +64,7 @@ export function Chat({
     experimental_throttle: 100,
     sendExtraMessageFields: true,
     generateId: generateUUID,
-    
+
     experimental_prepareRequestBody: (body) => {
       // TODO Kuz: ask Claude Code how this works
       // Prepare the request body with web search flag
@@ -101,9 +101,11 @@ export function Chat({
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
 
   // region Daily Quota CTA
-  // TODO Kuz: Ask Claude Code how to understanding if `useState` is needed or not here?   
+  // TODO Kuz: Ask Claude Code how to understanding if `useState` is needed or not here?
   // Calculate daily quota from user type
   const userType = session.user.type;
+  // console.log('Chat userId: ' + session.user.id);
+  // console.log('Chat userType: ' + userType);
   const { maxMessagesPerDay } = entitlementsByUserType[userType];
 
   // Fetch current message count for the user
@@ -144,7 +146,7 @@ export function Chat({
       const newState = !prev;
 
       // console.log('%c' + 'Chat toggleWebSearch newState: ' + newState, 'color: green;');
-      
+
       return newState;
     });
   }, []);

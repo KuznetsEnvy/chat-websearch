@@ -1,0 +1,15 @@
+root = true
+
+# [*]
+# trim_trailing_whitespace = true
+# insert_final_newline = true
+
+[*.tsx]
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Ignore paths
+# [{.idea/**,node_modules/**}]
+# ij_formatter_enabled = false
+# trim_trailing_whitespace = unset
+# insert_final_newline = unset

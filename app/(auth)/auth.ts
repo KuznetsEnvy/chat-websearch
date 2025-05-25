@@ -1,7 +1,7 @@
 import { compare } from 'bcrypt-ts';
 import NextAuth, { type DefaultSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { createGuestUser, getUser } from '@/lib/db/queries';
+import { createGuestUser, getUser, getUserActiveSubscriptions } from '@/lib/db/queries';
 import { authConfig } from './auth.config';
 import { DUMMY_PASSWORD } from '@/lib/constants';
 import type { DefaultJWT } from 'next-auth/jwt';
@@ -60,7 +60,11 @@ export const {
 
         if (!passwordsMatch) return null;
 
-        return { ...user, type: 'regular' };
+        const activeSubscriptions = await getUserActiveSubscriptions(user.id);
+        
+        const userType = activeSubscriptions.length > 0 ? 'premium' : 'regular';
+
+        return { ...user, type: userType };
       },
     }),
     Credentials({
