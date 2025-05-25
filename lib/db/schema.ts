@@ -9,7 +9,8 @@ import {
   primaryKey,
   foreignKey,
   boolean,
-  customType
+  customType,
+  integer
 } from 'drizzle-orm/pg-core';
 
 // https://github.com/drizzle-team/drizzle-orm/pull/666#issuecomment-1602918513
@@ -37,6 +38,31 @@ export const user = pgTable('User', {
 });
 
 export type User = InferSelectModel<typeof user>;
+
+
+export const plan = pgTable('Plan', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  name: varchar('name').notNull(),
+  days: integer('days').notNull(),
+  price: integer('price').notNull(),
+});
+
+export type Plan = InferSelectModel<typeof plan>;
+
+
+export const subscription = pgTable('Subscription', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  userId: uuid('userId')
+    .notNull()
+    .references(()=> user.id),
+  planId: uuid('planId')
+    .notNull()
+    .references(()=> plan.id),
+  createdAt: timestamp('createdAt').notNull(),
+  validUntil: timestamp('validUntil').notNull(),
+});
+
+export type Subscription = InferSelectModel<typeof subscription>;
 
 export const chat = pgTable('Chat', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
@@ -190,6 +216,7 @@ export type Stream = InferSelectModel<typeof stream>;
 
 export const payment = pgTable('Payment', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
+  userId: uuid('userId').notNull(),
   createdAt: timestamp('createdAt'),
   data: jsonb('data').notNull(),
 });

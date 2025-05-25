@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { logPayPal } from "@/lib/db/queries";
+import { logPayPal, updateUserToPremium } from "@/lib/db/queries";
+import { auth } from '@/app/(auth)/auth';
+import { redirect } from "next/navigation";
 
 interface PaymentData {
   name: string;
@@ -55,8 +57,7 @@ async function capturePayPalOrder(orderID: string, accessToken: string) {
     // console.log(response);
 
     const data = await response.json();
-
-    await logPayPal(data);
+    
     console.log('Returning capture response data:');
     console.log(data);
     return data;
@@ -79,6 +80,14 @@ export async function POST(request: Request) {
     }
     // endregion Validate the payment data
     
+    // region Get current user session
+    const session = await auth();
+    if (!session) {
+      console.error('User not logged in while attempting PayPal payment');
+      throw new Error('User not logged in while attempting PayPal payment');
+    }
+    // endregion Get current user session
+    
     // region Get the PayPal access token
     const accessToken = await getPayPalAccessToken();
     // console.log('PayPal endpoint got PayPal access token (' + typeof accessToken + '): ' + accessToken);
@@ -87,6 +96,8 @@ export async function POST(request: Request) {
     // Capture the payment
     const captureData = await capturePayPalOrder(data.orderID, accessToken);
     console.log('PayPal capture response:', captureData);
+
+    await logPayPal(data, session.user.id);
     
     // Check if capture was successful
     if (captureData.status !== 'COMPLETED') {
@@ -96,6 +107,9 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    
+    await updateUserToPremium(session.user.id);
+    
     return NextResponse.json(
       {
         success: true,

@@ -17,8 +17,10 @@ import postgres from 'postgres';
 
 import {
   user,
-  chat,
   type User,
+  subscription,
+  type Subscription,
+  chat,
   document,
   type Suggestion,
   suggestion,
@@ -28,7 +30,9 @@ import {
   type Chat,
   stream,
   payment,
-  type Payment
+  // type Payment,
+  plan,
+  type Plan
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
@@ -77,6 +81,68 @@ export async function createGuestUser() {
     throw error;
   }
 }
+
+export async function updateUserToPremium(userId: string) {
+  try {
+    const activeSubscriptions = await getUserActiveSubscriptions(userId);
+  
+    // TODO Kuz: Change hard-coded planId to dynamically selected by the user
+    const planId = 'c9754728-8104-4be2-a32c-d89b3d7c8846';
+    
+    if (activeSubscriptions.length === 0) {
+      createSubscription(userId, planId);
+    } else {
+      // updateSubscription(subscriptionId, planId);
+    }
+    
+  } catch (error) {
+    console.error('Failed to update user to premium in database');
+    throw error;
+  }
+}
+
+export async function getUserActiveSubscriptions(userId: string): Promise<Array<Subscription>> {
+  try {
+    return await db.select().from(subscription).where(eq(subscription.userId, userId));
+  } catch (error) {
+    console.error('Failed to get subscriptions from database');
+    throw error;
+  }
+}
+
+export async function createSubscription(userId: string, planId: string) {
+  try {
+    const plan = await getPlan(planId);
+    const msInOneDay = 1000 * 60 * 60 * 24;
+    return await db.insert(subscription).values({ 
+      userId: userId,  
+      planId: plan.id,
+      createdAt: new Date(),
+      validUntil: new Date(Date.now() + plan.days * msInOneDay),
+    });
+  } catch (error) {
+    console.error('Failed to create subscription in database');
+    throw error;
+  }
+}
+
+export async function getPlan(planId: string): Promise<Plan> {
+  try {
+    const plans = await db.select().from(plan).where(eq(plan.id, planId));
+    
+    if (plans.length === 0) {
+      throw new Error('Plan not found');
+    }
+    
+    const [planItem] = plans;
+    return planItem;
+  } catch (error) {
+    console.error('Failed to get a plan from database');
+    throw error;
+  }
+}
+
+
 
 export async function saveChat({
   id,
@@ -514,10 +580,11 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
 
 
 // region PayPal
-export async function logPayPal(data: object) {
+export async function logPayPal(data: object, userId: string) {
   try {
     const data_string = JSON.stringify(data);
     return await db.insert(payment).values({
+      userId: userId,
       data: sql`${data_string}::jsonb`
     });
   } catch (error) {
