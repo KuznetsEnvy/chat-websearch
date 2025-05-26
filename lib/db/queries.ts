@@ -38,6 +38,7 @@ import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
 import { generateHashedPassword } from './utils';
 import type { VisibilityType } from '@/components/visibility-selector';
+import { UserType } from "@/app/(auth)/auth";
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
@@ -106,6 +107,19 @@ export async function getUserActiveSubscriptions(userId: string): Promise<Array<
     return await db.select().from(subscription).where(eq(subscription.userId, userId));
   } catch (error) {
     console.error('Failed to get subscriptions from database');
+    throw error;
+  }
+}
+
+export async function getUserType(userId: string): Promise<UserType> {
+  try {
+    const activeSubscriptions = await getUserActiveSubscriptions(userId);
+    const userType = activeSubscriptions.length > 0 ? 'premium' : 'regular';
+
+    return userType;
+    
+  } catch (error) {
+    console.error('Failed to get user type');
     throw error;
   }
 }

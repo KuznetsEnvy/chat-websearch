@@ -1,7 +1,7 @@
 import { compare } from 'bcrypt-ts';
 import NextAuth, { type DefaultSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { createGuestUser, getUser, getUserActiveSubscriptions } from '@/lib/db/queries';
+import { createGuestUser, getUser, getUserType } from '@/lib/db/queries';
 import { authConfig } from './auth.config';
 import { DUMMY_PASSWORD } from '@/lib/constants';
 import type { DefaultJWT } from 'next-auth/jwt';
@@ -59,10 +59,8 @@ export const {
         const passwordsMatch = await compare(password, user.password);
 
         if (!passwordsMatch) return null;
-
-        const activeSubscriptions = await getUserActiveSubscriptions(user.id);
         
-        const userType = activeSubscriptions.length > 0 ? 'premium' : 'regular';
+        const userType = await getUserType(user.id);
 
         return { ...user, type: userType };
       },
@@ -77,10 +75,16 @@ export const {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id as string;
         token.type = user.type;
+      }
+
+      if (trigger === 'update' && session?.type === 'premium') {
+        const userType = await getUserType(token.id);
+        
+        token.type = userType;
       }
 
       return token;

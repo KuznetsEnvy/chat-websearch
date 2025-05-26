@@ -1,5 +1,4 @@
 'use client'
-// Server-side Modal
 
 import Link from "next/link";
 import PayPalForm from "@/components/paypal-button";
@@ -7,15 +6,20 @@ import { CrossIcon } from "@/components/icons";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export function Modal() {
 
   const [paymentStatus, setPaymentStatus] = useState<"pending" | "success" | "error">("pending");
   const [paymentData, setPaymentData] = useState<any>(null);
+  const { update: updateSession } = useSession();
 
-  const handlePaymentSuccess = (data: any) => {
+  const handlePaymentSuccess = async (data: any) => {
     setPaymentStatus("success");
     setPaymentData(data);
+    await updateSession({
+      type: 'premium'
+    });
   };
 
   const handlePaymentError = () => {
@@ -36,7 +40,7 @@ export function Modal() {
       router.replace(newUrl);
     }
   }
-  
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
       <div className="p-8 border w-auto max-w-3xl shadow-lg rounded-md bg-white text-black relative">
@@ -74,7 +78,7 @@ export function Modal() {
           >
             <CrossIcon className="size-full" />
           </Button>
-          
+
         </div>
       </div>
     </div>
