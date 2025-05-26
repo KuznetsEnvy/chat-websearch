@@ -32,7 +32,7 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
   const SHIPPING_COST = 0.00;
   const [isProcessing, setIsProcessing] = useState(false);
   const [paypalError, setPaypalError] = useState("");
-  
+
   // Calculate subtotal and total
   useEffect(() => {
     const calculatedSubtotal = cartItems.reduce((acc, item) =>
@@ -41,7 +41,7 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
     setSubtotal(calculatedSubtotal);
     setTotal(calculatedSubtotal + SHIPPING_COST);
   }, []);
-  
+
   const createOrder = (data: any, actions: any) => {
     return actions.order.create({
       purchase_units: [
@@ -55,7 +55,7 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
       ],
     });
   };
-  
+
   const onApprove = async (data: any, actions: any) => {
     setIsProcessing(true);
     try {
@@ -84,15 +84,15 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
         },
         body: JSON.stringify(paymentData),
       });
-      
+
       console.log('paymentData API response:', response);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('PayPal API error response:', errorText);
         throw new Error('Payment processing failed');
       }
-      
+
       const result = await response.json();
       // alert('Payment processed successfully!');
       console.log('Payment processed successfully:');
@@ -106,7 +106,7 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
           captureStatus: result.data.captureStatus
         });
       }
-      
+
     } catch (error) {
       console.error('Payment failed:', error);
       setPaypalError('Payment failed. Please try again.');
@@ -115,12 +115,12 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
       if (onPaymentError) {
         onPaymentError();
       }
-      
+
     } finally {
       setIsProcessing(false);
     }
   };
-  
+
   const onError = (err: any) => {
     console.error('PayPal error:', err);
     setPaypalError('An error occurred with PayPal. Please try again.');
@@ -134,18 +134,18 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
     <div>
       <h2 className="text-2xl font-bold mb-6">Premium membership</h2>
       <p className="text-left">
-        You are about to purchase test membership for <b>1 month</b>, that will give you ability to use our <b>most advanced features</b> and up to <b>500 daily chat messages</b>. 
-        <br/>This is only to showcase our chatbot capabilities and is <b>not a real membership</b> and comes with no guarantee. Functionality may change without previous notice. 
+        You are about to purchase test membership for <b>1 month</b>, that will give you ability to use our <b>most advanced features</b> and up to <b>500 daily chat messages</b>.
+        <br/>This is only to showcase our chatbot capabilities and is <b>not a real membership</b> and comes with no guarantee. Functionality may change without previous notice.
         <br/>Please consider this purchase <b>a donation</b> to our team.
       </p>
-      
+
       <div className="space-y-2 mb-6">
         <div className="flex justify-between font-bold text-lg pt-2 mt-2 border-t">
           <span>Total</span>
           <span>${total.toFixed(2)}</span>
         </div>
       </div>
-      
+
       {/* Processing State */}
       {isProcessing && (
         <div className="mb-4 text-center">
@@ -153,14 +153,14 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
           <span>Processing your payment...</span>
         </div>
       )}
-      
+
       {/* Error Message */}
       {paypalError && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
           {paypalError}
         </div>
       )}
-      
+
       {/* PayPal Button */}
       <PayPalScriptProvider options={{
         clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '',
@@ -175,7 +175,7 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
           disabled={isProcessing}
         />
       </PayPalScriptProvider>
-      
+
       <p className="text-xs text-gray-500 text-center">
         By completing this purchase, you agree to our terms and conditions.
       </p>

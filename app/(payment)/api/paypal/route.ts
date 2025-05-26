@@ -11,14 +11,14 @@ interface PaymentData {
   orderID: string;
 }
 
-const PAYPAL_API_URL = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.paypal.com';
+const PAYPAL_API_URL = process.env.PAYPAL_API_URL || 'https://sandbox.paypal.com';
 
 async function getPayPalAccessToken() {
   try {
     const auth = Buffer.from(`${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64');
     // console.log(`getPayPalAccessToken: ${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`);
     // console.log(`PAYPAL_API_URL: ${PAYPAL_API_URL}`);
-    const response = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
+    const response = await fetch(PAYPAL_API_URL + '/v1/oauth2/token', {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${auth}`,
