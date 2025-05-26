@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
+import { entitlementsByUserType } from "@/lib/ai/entitlements";
 
 interface CartItem {
   id: number;
@@ -134,7 +135,7 @@ export default function PayPalForm({ onPaymentSuccess, onPaymentError }: PayPalF
     <div>
       <h2 className="text-2xl font-bold mb-6">Premium membership</h2>
       <p className="text-left">
-        You are about to purchase test membership for <b>1 month</b>, that will give you ability to use our <b>most advanced features</b> and up to <b>500 daily chat messages</b>.
+        You are about to purchase test membership for <b>1 month</b>, that will give you ability to use our <b>most advanced features</b> and up to <b>{entitlementsByUserType.premium.maxMessagesPerDay} daily chat messages</b>.
         <br/>This is only to showcase our chatbot capabilities and is <b>not a real membership</b> and comes with no guarantee. Functionality may change without previous notice.
         <br/>Please consider this purchase <b>a donation</b> to our team.
       </p>
