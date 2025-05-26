@@ -28,6 +28,9 @@ import { textArtifact } from '@/artifacts/text/client';
 import equal from 'fast-deep-equal';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { VisibilityType } from './visibility-selector';
+import { entitlementsByUserType } from "@/lib/ai/entitlements";
+import { getUserMessageCount } from "@/app/(chat)/quota-actions";
+import { Session } from "next-auth";
 
 export const artifactDefinitions = [
   textArtifact,
@@ -70,6 +73,7 @@ function PureArtifact({
   votes,
   isReadonly,
   selectedVisibilityType,
+  session,
 }: {
   chatId: string;
   input: string;
@@ -88,6 +92,7 @@ function PureArtifact({
   reload: UseChatHelpers['reload'];
   isReadonly: boolean;
   selectedVisibilityType: VisibilityType;
+  session: Session;
 }) {
   const { artifact, setArtifact, metadata, setMetadata } = useArtifact();
 
@@ -107,6 +112,25 @@ function PureArtifact({
   const [currentVersionIndex, setCurrentVersionIndex] = useState(-1);
 
   const { open: isSidebarOpen } = useSidebar();
+
+  // region Daily Quota CTA
+  // TODO Kuz: Ask Claude Code how to understanding if `useState` is needed or not here?
+  // Calculate daily quota from user type
+  const userType = session.user.type;
+  // console.log('Chat userId: ' + session.user.id);
+  // console.log('Chat userType: ' + userType);
+  const { maxMessagesPerDay } = entitlementsByUserType[userType];
+
+  // Fetch current message count for the user
+  const { data: messageCount = 0 } = useSWR(
+    `user-message-count-${session.user.id}`,
+    () => getUserMessageCount(session.user.id),
+    { refreshInterval: 60000 } // Refresh every minute
+  );
+
+  // Calculate messages left
+  const messagesLeft = Math.max(0, maxMessagesPerDay - messageCount);
+  // endregion Daily Quota CTA
 
   useEffect(() => {
     if (documents && documents.length > 0) {
@@ -345,6 +369,8 @@ function PureArtifact({
                     className="bg-background dark:bg-muted"
                     setMessages={setMessages}
                     selectedVisibilityType={selectedVisibilityType}
+                    dailyQuota={maxMessagesPerDay}
+                    messagesLeft={messagesLeft}
                   />
                 </form>
               </div>
